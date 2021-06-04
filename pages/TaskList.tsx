@@ -73,11 +73,12 @@ export default function TaskList() {
 
   // const response = fetchTaskList();
   const id = "1200219339918856";
-  const { loading, error, data } = useQuery<ITask>(TASK_LIST, {
-    variables: { id },
-  });
+  // const { loading, error, data } = useQuery<ITask>(TASK_LIST, {
+  //   variables: { id },
+  // });
   const [tasks, setTask] = useState([]);
-  console.log(data);
+  let response;
+  // console.log(data);
 
   useEffect(() => {
     async function fetchTaskList() {
@@ -86,21 +87,32 @@ export default function TaskList() {
 
       const clientURI = `${process.env.ASANA_TASK_API}projects/${id}/tasks?limit=100`;
       console.log(clientURI);
-      const link = new HttpLink({
-        uri: clientURI,
-      });
+
+      response = (clientURI: any) => {
+        return fetch(clientURI);
+      };
+
+      const link = new HttpLink({ fetch: response });
+      console.log(link);
+      // const link = new HttpLink({
+      //   uri: clientURI,
+      // });
 
       // clientSession = new createApolloClient({
       //   link: from([link]),
       //   cache: new InMemoryCache(),
       // });
+      // this.clientSession.create({
+      //   cache: new InMemoryCache(),
+      //   link: this.httpLink.create({ uri: clientURI }),
+      // });
 
-      clientSession.link = link;
+      // clientSession.link = link;
 
-      const response = await clientSession.query({
-        query: TASK_LIST,
-        variables: id,
-      });
+      // response = await clientSession.query({
+      //   query: TASK_LIST,
+      //   variables: id,
+      // });
       // const event = req.body;
 
       // const response = await clientSession.query({
@@ -108,8 +120,8 @@ export default function TaskList() {
       //   variables: { id },
       // });
       console.log("response is", response);
-      if (loading) return "Loading...";
-      if (error) return `Error! ${error.message}`;
+      // if (loading) return "Loading...";
+      // if (error) return `Error! ${error.message}`;
       //   query: TASK_LIST,
       //   variables: variables,
       // });
@@ -119,16 +131,17 @@ export default function TaskList() {
       //     tasks: response,
       //   },
       // };
-      if (data) setTask(data);
+      // if (data) setTask(data);
+      if (response) setTask(response);
     }
 
     fetchTaskList();
-  }, [data]);
+  }, []);
 
-  console.log("response is", data);
-  return data ? (
+  // console.log("response is", data);
+  return response ? (
     <ChakraProvider>
-      <DataGrid columns={columns} data={data} />
+      <DataGrid columns={columns} data={response} />
     </ChakraProvider>
   ) : (
     ""
