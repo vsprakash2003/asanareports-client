@@ -7,6 +7,8 @@ import {
   HttpLink,
   from,
   InMemoryCache,
+  ApolloClient,
+  concat,
 } from "@apollo/client";
 import { ChakraProvider, useQuery } from "@chakra-ui/react";
 import { Column } from "react-table";
@@ -37,7 +39,7 @@ interface ITask {
   completed: String;
 }
 // const clientSession = client;
-const clientSession = createApolloClient();
+// const clientSession = createApolloClient();
 // let clientSession: {
 //   query: (arg0: { query: DocumentNode; variables: string }) => any;
 // };
@@ -66,7 +68,7 @@ const clientSession = createApolloClient();
 //   };
 // }
 
-export default function TaskList() {
+export default async function TaskList() {
   // const response = useEffect(() =>
   // fetchTaskList()
   // );
@@ -77,23 +79,44 @@ export default function TaskList() {
   //   variables: { id },
   // });
   const [tasks, setTask] = useState([]);
-  let response;
+  // let response;
   // console.log(data);
+
+  const clientURI = `${process.env.ASANA_TASK_API}projects/${id}/tasks?limit=100`;
+  // clientSession.link.options.uri = clientURI;
+  // console.log(clientSession);
+  // response = (clientURI: any) => {
+  //   return fetch(clientURI);
+  // };
+
+  const httpLink = new HttpLink({ uri: clientURI });
+  const client = new ApolloClient({
+    link: concat(httpLink),
+  });
+
+  // const link = new HttpLink({ fetch: response });
+  // const { loading, error, data } = useQuery<ITask>(TASK_LIST, {
+  //   variables: { id },
+  // });
+  // const data = await clientSession.query({
+  //   query: TASK_LIST,
+  //   variables: id,
+  // });
 
   useEffect(() => {
     async function fetchTaskList() {
-      console.log("Hi");
+      //   console.log("Hi");
       // const id = "1200219339918856";
 
-      const clientURI = `${process.env.ASANA_TASK_API}projects/${id}/tasks?limit=100`;
-      console.log(clientURI);
+      // const clientURI = `${process.env.ASANA_TASK_API}projects/${id}/tasks?limit=100`;
+      // console.log(clientURI);
 
-      response = (clientURI: any) => {
-        return fetch(clientURI);
-      };
+      // response = (clientURI: any) => {
+      //   return fetch(clientURI);
+      // };
 
-      const link = new HttpLink({ fetch: response });
-      console.log(link);
+      // const link = new HttpLink({ fetch: response });
+
       // const link = new HttpLink({
       //   uri: clientURI,
       // });
@@ -119,7 +142,12 @@ export default function TaskList() {
       // const { loading, error, data } = useQuery<ITask>(TASK_LIST, {
       //   variables: { id },
       // });
-      console.log("response is", response);
+
+      const response = await client.query({
+        query: TASK_LIST,
+        variables: id,
+      });
+      // console.log("response is", response);
       // if (loading) return "Loading...";
       // if (error) return `Error! ${error.message}`;
       //   query: TASK_LIST,
@@ -132,16 +160,17 @@ export default function TaskList() {
       //   },
       // };
       // if (data) setTask(data);
-      if (response) setTask(response);
+      if (response) setTask(response.data);
     }
 
-    fetchTaskList();
+    // fetchTaskList();
   }, []);
 
   // console.log("response is", data);
-  return response ? (
+  return tasks ? (
     <ChakraProvider>
-      <DataGrid columns={columns} data={response} />
+      {console.log("test")}
+      <DataGrid columns={columns} data={tasks} />
     </ChakraProvider>
   ) : (
     ""
