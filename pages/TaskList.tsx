@@ -68,7 +68,7 @@ interface ITask {
 //   };
 // }
 
-export default async function TaskList() {
+export default function TaskList() {
   // const response = useEffect(() =>
   // fetchTaskList()
   // );
@@ -163,13 +163,13 @@ export default async function TaskList() {
       if (response) setTask(response.data);
     }
 
-    // fetchTaskList();
+    fetchTaskList();
   }, []);
 
   // console.log("response is", data);
   return tasks ? (
     <ChakraProvider>
-      {console.log("test")}
+      {console.log(tasks)}
       <DataGrid columns={columns} data={tasks} />
     </ChakraProvider>
   ) : (
